@@ -1,8 +1,26 @@
+
 #include "rpn.h"
 #include <iostream>
+#include <vector>
+using namespace std;
 
-int main() {
-	string test[] = {"2", "12", "6", "-", "/", "5", "3", "+", "*"}; 
-	double result = rpn(test);
-	cout << result << endl;
+/******** handler function ******/
+double rpn(vector<string> strs) {
+	RPN model = RPN(strs);
+	return model.calculate();
+}
+
+/******** RPN Model Class ******/
+RPN::RPN(vector<string> strs) {
+	
+}
+
+
+double RPN::calculate() {
+	double result = 0.0;
+
+	// Calculate the result here
+	// You may add extra functions if needed
+
+	return result;
 }
