@@ -13,42 +13,8 @@ double rpn(vector<string> strs) {
     return model->calculate();
 }
 
-/******** helper functions *****/
-
-/**
- * @brief check if a string is a number
- * 
- * @param str the string to check
- * @return true if string is numeric
- * @return false otherwise
- */
-bool is_number(string str) {
-    for (char c : str) {
-        if (!isdigit(c)) {
-            return false;
-        }
-    }
-    return true;
-}
-
-/**
- * @brief check if a string is am operator
- * 
- * @param str the string to check
- * @return true if string is operator
- * @return false otherwise
- */
-bool is_operator(string str) {
-    return str == "+" ||
-           str == "-" ||
-           str == "*" ||
-           str == "/" ||
-           str == "<" ||
-           str == ">" ||
-           str == "**";
-}
-
 /******** RPN Model Class ******/
+
 RPN::RPN(vector<string>& strs) {
     // base case
     if (strs.empty()) {
@@ -57,12 +23,16 @@ RPN::RPN(vector<string>& strs) {
     this->value = strs.back();
     strs.pop_back();
 
-    if (is_number(this->value)) {
+    if (this->is_number()) {
         return;
     }
 
-    this->right = new RPN(strs);
-    this->left = new RPN(strs);
+    if (this->is_singleton_operator()) {
+        this->next = new RPN(strs);
+    } else {
+        this->right = new RPN(strs);
+        this->left = new RPN(strs);
+    }
 }
 
 double RPN::calculate() {
@@ -70,6 +40,19 @@ double RPN::calculate() {
 
     if (this->isLeaf()) {
         return atof(this->value.c_str());
+    }
+
+    if (this->is_singleton_operator()) {
+        double num = this->next->calculate();
+		cout << "rounding " << num << endl;
+        if (this->value == "<") {
+            result = floor(num);
+        } else if (this->value == ">") {
+            result = ceil(num);
+        } else {
+            throw "Invalid Operation";
+        }
+        return result;
     }
 
     double a = this->left->calculate();
@@ -88,8 +71,8 @@ double RPN::calculate() {
     } else if (this->value == "**") {
         result = pow(a, b);
     } else {
-		throw "Invalid Operation";
-	}
+        throw "Invalid Operation";
+    }
 
     return result;
 }
@@ -100,15 +83,67 @@ void RPN::print() {
         return;
     }
 
-    this->left->print();
-    this->right->print();
+	if (this->is_singleton_operator()) {
+		this->next->print();
+	} else {
+		this->left->print();
+		this->right->print();
+	}
+
 }
 
 bool RPN::isLeaf() {
-    return is_number(this->value) && !this->left && !this->right;
+    return (this->is_number() && !this->left && !this->right) ||
+           (this->is_number() && !this->next);
 }
 
 bool RPN::isLastTree() {
-    return is_operator(this->value) &&
+    return this->is_binary_operator() &&
            this->left->isLeaf() && this->right->isLeaf();
+}
+
+
+/**
+ * @brief check if a string is a number
+ * 
+ * @param str the string to check
+ * @return true if string is numeric
+ * @return false otherwise
+ */
+bool RPN::is_number() {
+    for (char c : this->value) {
+        if (!isdigit(c)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+ * @brief check if a string is an binary operator
+ * 
+ * @param str the string to check
+ * @return true if string is operator
+ * @return false otherwise
+ */
+bool RPN::is_binary_operator() {
+    string str = this->value;
+    return str == "+" ||
+           str == "-" ||
+           str == "*" ||
+           str == "/" ||
+           str == "<" ||
+           str == ">" ||
+           str == "**";
+}
+
+/**
+ * @brief check if a string is an singleton operator
+ * 
+ * @param str the string to check
+ * @return true if string is operator
+ * @return false otherwise
+ */
+bool RPN::is_singleton_operator() {
+    return this->value == "<" || this->value == ">";
 }
