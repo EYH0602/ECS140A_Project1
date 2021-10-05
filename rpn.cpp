@@ -43,7 +43,7 @@ double RPN::calculate() {
     double result = 0.0;
 
     if (this->isLeaf()) {
-        return atof(this->value.c_str());
+        return stof(this->value.c_str());
     }
 
     if (this->is_unary_op()) {
@@ -108,17 +108,17 @@ bool RPN::isLastTree() {
 
 
 /**
- * @brief check if a string is a number
+ * @brief check if a string is a number (i.e. float)
  * 
  * @param str the string to check
  * @return true if string is numeric
  * @return false otherwise
  */
 bool RPN::is_number() {
-    for (char c : this->value) {
-        if (!isdigit(c)) {
-            return false;
-        }
+    try {
+        stof(this->value);
+    } catch (const std::invalid_argument& e) {
+        return false;
     }
     return true;
 }
