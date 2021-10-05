@@ -27,7 +27,7 @@ RPN::RPN(vector<string>& strs) {
         return;
     }
 
-    if (this->is_singleton_operator()) {
+    if (this->is_unary_op()) {
         this->next = new RPN(strs);
     } else {
         this->right = new RPN(strs);
@@ -42,7 +42,7 @@ double RPN::calculate() {
         return atof(this->value.c_str());
     }
 
-    if (this->is_singleton_operator()) {
+    if (this->is_unary_op()) {
         double num = this->next->calculate();
 		cout << "rounding " << num << endl;
         if (this->value == "<") {
@@ -83,7 +83,7 @@ void RPN::print() {
         return;
     }
 
-	if (this->is_singleton_operator()) {
+	if (this->is_unary_op()) {
 		this->next->print();
 	} else {
 		this->left->print();
@@ -98,7 +98,7 @@ bool RPN::isLeaf() {
 }
 
 bool RPN::isLastTree() {
-    return this->is_binary_operator() &&
+    return this->is_binary_op() &&
            this->left->isLeaf() && this->right->isLeaf();
 }
 
@@ -126,7 +126,7 @@ bool RPN::is_number() {
  * @return true if string is operator
  * @return false otherwise
  */
-bool RPN::is_binary_operator() {
+bool RPN::is_binary_op() {
     string str = this->value;
     return str == "+" ||
            str == "-" ||
@@ -144,6 +144,6 @@ bool RPN::is_binary_operator() {
  * @return true if string is operator
  * @return false otherwise
  */
-bool RPN::is_singleton_operator() {
+bool RPN::is_unary_op() {
     return this->value == "<" || this->value == ">";
 }

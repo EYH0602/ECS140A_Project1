@@ -18,8 +18,8 @@ class RPN {
     bool isLeaf();
     bool isLastTree();
 	bool is_number();
-	bool is_singleton_operator();
-	bool is_binary_operator();
+	bool is_unary_op();
+	bool is_binary_op();
 
    public:
     RPN(std::vector<std::string>&);
