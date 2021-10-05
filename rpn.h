@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 
-double rpn(std::vector<std::string>);
+double rpn(std::string *strs, int n);
 
 class RPN {
    private:

@@ -6,8 +6,9 @@
 using namespace std;
 
 int main() {
-    vector<string> test = {"2", "12", "6", "-", "/", ">", "5", "3", "+", "*"};
+    string test[] = {"2", "12", "6", "-", "/", "5", "3", "+", "*"};
+    int n = 9;
 
-    double result = rpn(test);
+    double result = rpn(test, n);
     cout << result << endl;
 }

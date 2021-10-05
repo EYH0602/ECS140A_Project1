@@ -8,8 +8,12 @@
 using namespace std;
 
 /******** handler function ******/
-double rpn(vector<string> strs) {
-    RPN* model = new RPN(strs);
+double rpn(string *strs, int n) {
+    vector<string> elements;
+    for (int i = 0; i < n; i++) {
+        elements.push_back(strs[i]);
+    }
+    RPN* model = new RPN(elements);
     return model->calculate();
 }
 
