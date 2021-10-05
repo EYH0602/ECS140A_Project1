@@ -7,7 +7,7 @@ OBJS = rpn.o
 all: main
 
 rpn.o: rpn.cpp rpn.h
-	$(CC) -c $(CFLAGS) rpn.cpp
+	$(CC) -c $(CFLAGS) $(CFLAGS) rpn.cpp
 
 main: $(OBJS) main.cpp
 	$(CC) -o main $(OBJS) $(CFLAGS) main.cpp

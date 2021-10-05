@@ -11,4 +11,6 @@ int main() {
 
     double result = rpn(test, n);
     cout << result << endl;
+
+    return 0;
 }
