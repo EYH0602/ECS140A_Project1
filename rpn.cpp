@@ -8,7 +8,7 @@
 using namespace std;
 
 /******** handler function ******/
-double rpn(string *strs, int n) {
+double rpn(string* strs, int n) {
     vector<string> elements;
     for (int i = 0; i < n; i++) {
         elements.push_back(strs[i]);
@@ -32,7 +32,7 @@ RPN::RPN(vector<string>& strs) {
     }
 
     if (this->is_unary_op()) {
-        this->next = new RPN(strs);
+        this->right = new RPN(strs);
     } else {
         this->right = new RPN(strs);
         this->left = new RPN(strs);
@@ -42,13 +42,13 @@ RPN::RPN(vector<string>& strs) {
 double RPN::calculate() {
     double result = 0.0;
 
-    if (this->isLeaf()) {
+    if (this->is_leaf()) {
         return stof(this->value.c_str());
     }
 
     if (this->is_unary_op()) {
-        double num = this->next->calculate();
-		cout << "rounding " << num << endl;
+        double num = this->right->calculate();
+        cout << "rounding " << num << endl;
         if (this->value == "<") {
             result = floor(num);
         } else if (this->value == ">") {
@@ -83,29 +83,27 @@ double RPN::calculate() {
 
 void RPN::print() {
     cout << this->value << endl;
-    if (this->isLeaf()) {
+    if (this->is_leaf()) {
         return;
     }
 
-	if (this->is_unary_op()) {
-		this->next->print();
-	} else {
-		this->left->print();
-		this->right->print();
-	}
-
+    if (this->is_unary_op()) {
+        this->right->print();
+    } else {
+        this->left->print();
+        this->right->print();
+    }
 }
 
-bool RPN::isLeaf() {
+bool RPN::is_leaf() {
     return (this->is_number() && !this->left && !this->right) ||
-           (this->is_number() && !this->next);
+           (this->is_number() && !this->right);
 }
 
-bool RPN::isLastTree() {
+bool RPN::is_last_tree() {
     return this->is_binary_op() &&
-           this->left->isLeaf() && this->right->isLeaf();
+           this->left->is_leaf() && this->right->is_leaf();
 }
-
 
 /**
  * @brief check if a string is a number (i.e. float)
