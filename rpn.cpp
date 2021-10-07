@@ -14,6 +14,7 @@ double rpn(string* strs, int n) {
         elements.push_back(strs[i]);
     }
     RPN* model = new RPN(elements);
+    model->print();
     return model->calculate();
 }
 
@@ -48,7 +49,6 @@ double RPN::calculate() {
 
     if (this->is_unary_op()) {
         double num = this->right->calculate();
-        cout << "rounding " << num << endl;
         if (this->value == "<") {
             result = floor(num);
         } else if (this->value == ">") {
@@ -81,8 +81,43 @@ double RPN::calculate() {
     return result;
 }
 
+/**
+ * @brief print the parse tree as required in project1.pdf part 2
+ * 
+ */
 void RPN::print() {
+    // start printing the tree at the root
+    this->print(0);
+}
+
+/**
+ * @brief helper function of print,
+ * indent the line according to depth.
+ * NOTE: two space indentation
+ * 
+ * @param depth the level of the node, the root starts with 0 
+ */
+void RPN::indent(int depth) {
+    for (int i = 0; i < depth; i++) {
+        cout << "  ";  // two space indentation
+    }
+}
+
+/**
+ * @brief helper function of print,
+ * start printing at depth
+ * 
+ * @param depth the level of the node, the root starts with 0 
+ */
+void RPN::print(int depth) {
+    // indent and print opening parenthesis
+    this->indent(depth);
+    if (!this->is_leaf()) {
+        cout << "(";
+    }
+    // print the actual value
     cout << this->value << endl;
+
     if (this->is_leaf()) {
         return;
     }
@@ -90,8 +125,20 @@ void RPN::print() {
     if (this->is_unary_op()) {
         this->right->print();
     } else {
-        this->left->print();
-        this->right->print();
+        if (this->left->is_leaf() && !this->right->is_leaf()) {
+            this->right->print(depth + 1);
+            this->left->print(depth + 1);
+        } else {
+            this->left->print(depth + 1);
+            this->right->print(depth + 1);
+        }
+    }
+
+    // indent and print closing parenthesis
+    this->indent(depth);
+    if (!this->is_leaf()) {
+        cout << ")" << endl;
+        ;
     }
 }
 

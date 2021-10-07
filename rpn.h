@@ -18,6 +18,9 @@ class RPN {
     bool is_unary_op();
     bool is_binary_op();
 
+    void indent(int);
+    void print(int);
+
    public:
     RPN(std::vector<std::string>&);
     RPN(std::string);
