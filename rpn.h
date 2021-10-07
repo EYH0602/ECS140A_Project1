@@ -9,14 +9,11 @@ class RPN {
     std::string value;
 
 	// for binary operators
-	RPN* left = nullptr;
+	RPN* left = nullptr;  // always null if unary operator
 	RPN* right = nullptr;
 
-	// for single parameter operators
-	RPN* next = nullptr;
-
-    bool isLeaf();
-    bool isLastTree();
+    bool is_leaf();
+    bool is_last_tree();
 	bool is_number();
 	bool is_unary_op();
 	bool is_binary_op();
