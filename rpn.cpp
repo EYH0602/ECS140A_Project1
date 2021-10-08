@@ -8,13 +8,15 @@
 using namespace std;
 
 /******** handler function ******/
-double rpn(string* strs, int n) {
+double rpn(string* strs, int n, bool is_print_needed) {
     vector<string> elements;
     for (int i = 0; i < n; i++) {
         elements.push_back(strs[i]);
     }
     RPN* model = new RPN(elements);
-    model->print();
+    if (is_print_needed) {
+        model->print();
+    }
     return model->calculate();
 }
 
@@ -138,7 +140,6 @@ void RPN::print(int depth) {
     this->indent(depth);
     if (!this->is_leaf()) {
         cout << ")" << endl;
-        ;
     }
 }
 
