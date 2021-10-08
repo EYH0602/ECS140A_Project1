@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 
-double rpn(std::string* strs, int n);
+double rpn(std::string*, int, bool);
 
 class RPN {
    private:
@@ -17,6 +17,9 @@ class RPN {
     bool is_number();
     bool is_unary_op();
     bool is_binary_op();
+
+    void indent(int);
+    void print(int);
 
    public:
     RPN(std::vector<std::string>&);
