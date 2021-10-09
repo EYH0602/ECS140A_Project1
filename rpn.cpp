@@ -197,3 +197,13 @@ bool RPN::is_binary_op() {
 bool RPN::is_unary_op() {
     return this->value == "<" || this->value == ">";
 }
+
+RPN::~RPN() {
+    if (this->is_leaf()) {
+        return;
+    }
+    this->left->~RPN();
+    this->right->~RPN();
+    delete this->left;
+    delete this->right;
+}

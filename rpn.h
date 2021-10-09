@@ -26,4 +26,5 @@ class RPN {
     RPN(std::string);
     double calculate();
     void print();
+    ~RPN();
 };
