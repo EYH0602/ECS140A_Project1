@@ -53,7 +53,21 @@ void start_app(FILE* fp, bool is_print_needed) {
         }
         buff[len - 1] = '\0';
         rpn_line = parse_csv(string(buff));
-        model = new RPN(rpn_line);
+
+        // try to build the parse tree
+        try {
+            model = new RPN(rpn_line);
+        } catch (const string& msg) {
+            cerr << "Error: " << msg << endl;
+            continue;
+        } catch (const char* msg) {
+            cerr << "Error: " << msg << endl;
+            continue;
+        } catch (...) {
+            // swallow it
+        }
+
+        // print and evaluate the postfix
         if (is_print_needed) {
             model->print();
         }

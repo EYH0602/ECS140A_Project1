@@ -36,9 +36,12 @@ RPN::RPN(vector<string>& strs) {
 
     if (this->is_unary_op()) {
         this->right = new RPN(strs);
-    } else {
+    } else if (this->is_binary_op()) {
         this->right = new RPN(strs);
         this->left = new RPN(strs);
+    } else {
+        string err_msg = "operator/operand not supported (" + this->value + ")";
+        throw err_msg;
     }
 }
 
