@@ -125,7 +125,7 @@ void RPN::print(int depth) {
     }
 
     if (this->is_unary_op()) {
-        this->right->print();
+        this->right->print(depth + 1);
     } else {
         if (this->left->is_leaf() && !this->right->is_leaf()) {
             this->right->print(depth + 1);
