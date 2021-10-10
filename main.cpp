@@ -4,7 +4,6 @@
 #include <cstring>
 #include <iostream>
 #include <sstream>
-#include <fstream>
 #include <vector>
 
 #include "rpn.h"
@@ -59,7 +58,7 @@ void start_app(FILE* fp, bool is_print_needed) {
             model->print();
         }
         cout << "Result: " << model->calculate() << endl;
-        // delete model;
+        delete model;
     }
 }
 
