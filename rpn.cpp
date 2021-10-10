@@ -199,11 +199,10 @@ bool RPN::is_unary_op() {
 }
 
 RPN::~RPN() {
-    if (this->is_leaf()) {
-        return;
+    if (this->left) {
+        delete this->left;
     }
-    this->left->~RPN();
-    this->right->~RPN();
-    delete this->left;
-    delete this->right;
+    if (this->right) {
+        delete this->right;
+    }
 }
