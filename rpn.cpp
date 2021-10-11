@@ -27,6 +27,7 @@ RPN::RPN(vector<string>& strs) {
     if (strs.empty()) {
         return;
     }
+    int len = strs.size();
     this->value = strs.back();
     strs.pop_back();
 
@@ -43,6 +44,12 @@ RPN::RPN(vector<string>& strs) {
         string err_msg = "operator/operand not supported (" + this->value + ")";
         throw err_msg;
     }
+
+    // check if the tree is constructed correctly
+    if (len != this->get_node_count()) {
+        throw "Invalid syntax";
+    }
+
 }
 
 double RPN::calculate() {
@@ -84,6 +91,21 @@ double RPN::calculate() {
     }
 
     return result;
+}
+
+/**
+ * @brief count the node of this tree
+ */
+int RPN::get_node_count() {
+    if (this->is_leaf()) {
+        return 1;
+    }
+
+    if (this->is_unary_op()) {
+        return 1 + this->right->get_node_count();
+    }
+
+    return 1 + this->left->get_node_count() + this->right->get_node_count();
 }
 
 /**

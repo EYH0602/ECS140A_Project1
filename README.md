@@ -31,6 +31,7 @@ For example called `test.csv`
     ```csv
     2,12,6,-,/,5,3,+,*
     3.14,<
+
     ```
     
     ```sh
@@ -38,6 +39,8 @@ For example called `test.csv`
     Result: 2.66667
     Result: 3
     ```
+
+    **NOTE**: There should always a empty line by the end of CSV file.
 
 ### Listing Option
 

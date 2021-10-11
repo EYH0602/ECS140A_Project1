@@ -18,6 +18,8 @@ class RPN {
     bool is_unary_op();
     bool is_binary_op();
 
+    int get_node_count();
+
     void indent(int);
     void print(int);
 
