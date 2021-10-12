@@ -27,6 +27,7 @@ RPN::RPN(vector<string>& strs) {
     if (strs.empty()) {
         return;
     }
+    int len = strs.size();
     this->value = strs.back();
     strs.pop_back();
 
@@ -36,10 +37,40 @@ RPN::RPN(vector<string>& strs) {
 
     if (this->is_unary_op()) {
         this->right = new RPN(strs);
-    } else {
+    } else if (this->is_binary_op()) {
         this->right = new RPN(strs);
         this->left = new RPN(strs);
+    } else {
+        string err_msg = "operator/operand not supported (" + this->value + ")";
+        throw err_msg;
     }
+
+    if (!this->is_tree_valid() || len != this->get_node_count()) {
+        throw "Invalid syntax";
+    }
+}
+
+/**
+ * @brief check if the parse tree is valid
+ */
+bool RPN::is_tree_valid() {
+    // base case
+    // a numeric node must be leaf (has no child)
+    if (this->is_number() && !this->left && !this->right) {
+        return true;
+    }
+
+    // if the current node is a unary operator,
+    //   then this child must exists be valid for it to be valid
+    // if binary operator
+    //   both left and right have to exists and valid for it to be valid
+    if (this->is_unary_op()) {
+        return this->right && this->right->is_tree_valid();
+    } else if (this->is_binary_op()) {
+        return this->right && this->right->is_tree_valid() &&
+               this->left && this->left->is_tree_valid();
+    }
+    return false;
 }
 
 double RPN::calculate() {
@@ -81,6 +112,21 @@ double RPN::calculate() {
     }
 
     return result;
+}
+
+/**
+ * @brief count the node of this tree
+ */
+int RPN::get_node_count() {
+    if (this->is_leaf()) {
+        return 1;
+    }
+
+    if (this->is_unary_op()) {
+        return 1 + this->right->get_node_count();
+    }
+
+    return 1 + this->left->get_node_count() + this->right->get_node_count();
 }
 
 /**
