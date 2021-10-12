@@ -26,6 +26,7 @@ class RPN {
 
    public:
     RPN(std::vector<std::string>&);
+    RPN(std::vector<std::string>&, int);
     RPN(std::string);
     double calculate();
     void print();
