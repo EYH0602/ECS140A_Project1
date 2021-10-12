@@ -22,7 +22,16 @@ double rpn(string* strs, int n, bool is_print_needed) {
 
 /******** RPN Model Class ******/
 
-RPN::RPN(vector<string>& strs) {
+RPN::RPN(vector<string>& strs) : RPN::RPN(strs, 0) {}
+
+/**
+ * @brief Construct a new RPN::RPN object
+ * with depth to help syntax checking
+ * 
+ * @param strs 
+ * @param depth 
+ */
+RPN::RPN(vector<string>& strs, int depth) {
     // base case
     if (strs.empty()) {
         return;
@@ -36,16 +45,16 @@ RPN::RPN(vector<string>& strs) {
     }
 
     if (this->is_unary_op()) {
-        this->right = new RPN(strs);
+        this->right = new RPN(strs, depth+1);
     } else if (this->is_binary_op()) {
-        this->right = new RPN(strs);
-        this->left = new RPN(strs);
+        this->right = new RPN(strs, depth+1);
+        this->left = new RPN(strs, depth+1);
     } else {
         string err_msg = "operator/operand not supported (" + this->value + ")";
         throw err_msg;
     }
 
-    if (!this->is_tree_valid() || len != this->get_node_count()) {
+    if (!this->is_tree_valid() || (depth==0 && len != this->get_node_count())) {
         throw "Invalid syntax";
     }
 }
