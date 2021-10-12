@@ -10,12 +10,18 @@
 using namespace std;
 
 vector<string> parse_csv(string line) {
-    stringstream ss(line);
     vector<string> res;
-    while (ss.good()) {
-        string temp;
-        getline(ss, temp, ',');
+    string temp;
+    size_t index;
+    while ((index = line.find(",")) != std::string::npos) {
+        temp = line.substr(0, index);
+        line = line.substr(index + 1);
         res.push_back(temp);
+    }
+
+    // make sure to receive the last expression
+    if (line.length() != 0) {
+        res.push_back(line);
     }
     return res;
 }
