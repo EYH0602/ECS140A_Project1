@@ -1,263 +1,119 @@
 
-#include "rpn.h"
+#include <unistd.h>
 
-#include <algorithm>
-#include <cmath>
+#include <cstring>
 #include <iostream>
+#include <sstream>
 #include <vector>
+
+#include "rpn.h"
 using namespace std;
 
-/******** handler function ******/
-double rpn(string* strs, int n, bool is_print_needed) {
-    vector<string> elements;
-    for (int i = 0; i < n; i++) {
-        elements.push_back(strs[i]);
+vector<string> parse_csv(string line) {
+    vector<string> res;
+    string temp;
+    size_t index;
+    while ((index = line.find(",")) != std::string::npos) {
+        temp = line.substr(0, index);
+        line = line.substr(index + 1);
+        res.push_back(temp);
     }
-    RPN* model = new RPN(elements);
-    if (is_print_needed) {
-        model->print();
+
+    // make sure to receive the last expression
+    if (line.length() != 0) {
+        res.push_back(line);
     }
-    return model->calculate();
+    return res;
 }
 
-/******** RPN Model Class ******/
-
-RPN::RPN(vector<string>& strs) : RPN::RPN(strs, 0) {}
+/**
+ * Display the prompt at begining of line.
+ * NOTE: this part is the same from my old project:
+ * https://github.com/EYH0602/gunrock_web/blob/main/dcash_wallet/wallet.cpp
+ * @param prompt Your prompt with ending charactor '\0'.
+ */
+#define SHOW_PROMPT(prompt) write(STDOUT_FILENO, prompt, strlen(prompt))
 
 /**
- * @brief Construct a new RPN::RPN object
- * with depth to help syntax checking
+ * @brief start the command environment of RPN calculator.
+ * NOTE: this part is the same from my old project:
+ * https://github.com/EYH0602/gunrock_web/blob/main/dcash_wallet/wallet.cpp
  * 
- * @param strs 
- * @param depth 
+ * @param fp the file to read from 
+ * (stdin for interactive mode, other for batch mode).
+ * @param is_print_needed need to print the tree or not
  */
-RPN::RPN(vector<string>& strs, int depth) {
-    // base case
-    if (strs.empty()) {
-        return;
-    }
-    int len = strs.size();
-    this->value = strs.back();
-    strs.pop_back();
+void start_app(FILE* fp, bool is_print_needed) {
+    string prompt = (fp == stdin) ? "> " : "";
+    size_t cap = 0;
+    ssize_t len;
+    char* buff = NULL;
+    string line;
+    vector<string> rpn_line;
+    RPN* model;
 
-    if (this->is_number()) {
-        return;
-    }
-
-    if (this->is_unary_op()) {
-        this->right = new RPN(strs, depth+1);
-    } else if (this->is_binary_op()) {
-        this->right = new RPN(strs, depth+1);
-        this->left = new RPN(strs, depth+1);
-    } else {
-        string err_msg = "operator/operand not supported (" + this->value + ")";
-        throw err_msg;
-    }
-
-    if (!this->is_tree_valid() || (depth==0 && len != this->get_node_count())) {
-        throw "Invalid syntax";
-    }
-}
-
-/**
- * @brief check if the parse tree is valid
- */
-bool RPN::is_tree_valid() {
-    // base case
-    // a numeric node must be leaf (has no child)
-    if (this->is_number() && !this->left && !this->right) {
-        return true;
-    }
-
-    // if the current node is a unary operator,
-    //   then this child must exists be valid for it to be valid
-    // if binary operator
-    //   both left and right have to exists and valid for it to be valid
-    if (this->is_unary_op()) {
-        return this->right && this->right->is_tree_valid();
-    } else if (this->is_binary_op()) {
-        return this->right && this->right->is_tree_valid() &&
-               this->left && this->left->is_tree_valid();
-    }
-    return false;
-}
-
-double RPN::calculate() {
-    double result = 0.0;
-
-    if (this->is_leaf()) {
-        return stof(this->value.c_str());
-    }
-
-    if (this->is_unary_op()) {
-        double num = this->right->calculate();
-        if (this->value == "<") {
-            result = floor(num);
-        } else if (this->value == ">") {
-            result = ceil(num);
-        } else {
-            throw "Invalid Operation";
+    // read from file/STDIN line by line
+    while (SHOW_PROMPT(prompt.c_str()), (len = getline(&buff, &cap, fp)) > 0) {
+        if (len == 1 && buff[len] == '\0') {
+            continue;
         }
-        return result;
-    }
+        buff[len - 1] = '\0';
+        rpn_line = parse_csv(string(buff));
 
-    double a = this->left->calculate();
-    double b = this->right->calculate();
+        // try to build the parse tree
+        try {
+            model = new RPN(rpn_line);
+        } catch (const string& msg) {
+            cerr << "Error: " << msg << endl;
+            continue;
+        } catch (const char* msg) {
+            cerr << "Error: " << msg << endl;
+            continue;
+        } catch (...) {
+            // swallow it
+        }
 
-    if (this->value == "+") {
-        result = a + b;
-    } else if (this->value == "-") {
-        result = a - b;
-    } else if (this->value == "-") {
-        result = a - b;
-    } else if (this->value == "*") {
-        result = a * b;
-    } else if (this->value == "/") {
-        result = a / b;
-    } else if (this->value == "**") {
-        result = pow(a, b);
-    } else {
-        throw "Invalid Operation";
-    }
-
-    return result;
-}
-
-/**
- * @brief count the node of this tree
- */
-int RPN::get_node_count() {
-    if (this->is_leaf()) {
-        return 1;
-    }
-
-    if (this->is_unary_op()) {
-        return 1 + this->right->get_node_count();
-    }
-
-    return 1 + this->left->get_node_count() + this->right->get_node_count();
-}
-
-/**
- * @brief print the parse tree as required in project1.pdf part 2
- * 
- */
-void RPN::print() {
-    // start printing the tree at the root
-    this->print(0);
-}
-
-/**
- * @brief helper function of print,
- * indent the line according to depth.
- * NOTE: two space indentation
- * 
- * @param depth the level of the node, the root starts with 0 
- */
-void RPN::indent(int depth) {
-    for (int i = 0; i < depth; i++) {
-        cout << "  ";  // two space indentation
+        // print and evaluate the postfix
+        if (is_print_needed) {
+            model->print();
+        }
+        cout << "Result: " << model->calculate() << endl;
+        delete model;
     }
 }
 
-/**
- * @brief helper function of print,
- * start printing at depth
- * 
- * @param depth the level of the node, the root starts with 0 
- */
-void RPN::print(int depth) {
-    // indent and print opening parenthesis
-    this->indent(depth);
-    if (!this->is_leaf()) {
-        cout << "(";
-    }
-    // print the actual value
-    cout << this->value << endl;
-
-    if (this->is_leaf()) {
-        return;
-    }
-
-    if (this->is_unary_op()) {
-        this->right->print(depth + 1);
-    } else {
-        if (this->left->is_leaf() && !this->right->is_leaf()) {
-            this->right->print(depth + 1);
-            this->left->print(depth + 1);
-        } else {
-            this->left->print(depth + 1);
-            this->right->print(depth + 1);
+int main(int argc, char* argv[]) {
+    // parse cli arguments
+    // NOTE: if -h is specified, -f option will do nothing
+    int option;
+    FILE* fp = stdin;
+    bool is_print_needed = false;
+    bool is_hard_code_mode = false;
+    while ((option = getopt(argc, argv, "lhf:")) != -1) {
+        switch (option) {
+            case 'l':
+                is_print_needed = true;
+                break;
+            case 'f':
+                fp = fopen(optarg, "r");
+                break;
+            case 'h':
+                is_hard_code_mode = true;
+                break;
+            default:
+                break;
         }
     }
 
-    // indent and print closing parenthesis
-    this->indent(depth);
-    if (!this->is_leaf()) {
-        cout << ")" << endl;
+    if (is_hard_code_mode) {
+        // old test case
+        string test[] = {"2", "12", "6", "-", "/", "5", "3", "+", "*"};
+        int n = 9;
+        double result = rpn(test, n, is_print_needed);
+        cout << "Result: " << result << endl;
+        return 0;
     }
-}
 
-bool RPN::is_leaf() {
-    return (this->is_number() && !this->left && !this->right) ||
-           (this->is_number() && !this->right);
-}
-
-bool RPN::is_last_tree() {
-    return this->is_binary_op() &&
-           this->left->is_leaf() && this->right->is_leaf();
-}
-
-/**
- * @brief check if a string is a number (i.e. float)
- * 
- * @param str the string to check
- * @return true if string is numeric
- * @return false otherwise
- */
-bool RPN::is_number() {
-    try {
-        stof(this->value);
-    } catch (const std::invalid_argument& e) {
-        return false;
-    }
-    return true;
-}
-
-/**
- * @brief check if a string is an binary operator
- * 
- * @param str the string to check
- * @return true if string is operator
- * @return false otherwise
- */
-bool RPN::is_binary_op() {
-    string str = this->value;
-    return str == "+" ||
-           str == "-" ||
-           str == "*" ||
-           str == "/" ||
-           str == "<" ||
-           str == ">" ||
-           str == "**";
-}
-
-/**
- * @brief check if a string is an singleton operator
- * 
- * @param str the string to check
- * @return true if string is operator
- * @return false otherwise
- */
-bool RPN::is_unary_op() {
-    return this->value == "<" || this->value == ">";
-}
-
-RPN::~RPN() {
-    if (this->left) {
-        delete this->left;
-    }
-    if (this->right) {
-        delete this->right;
-    }
+    start_app(fp, is_print_needed);
+    return 0;
 }
