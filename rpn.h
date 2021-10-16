@@ -26,7 +26,7 @@ class RPN {
 
     /**
      * @brief check if a string is a number (i.e. float)
-     * 
+     *
      * @param str the string to check
      * @return true if string is numeric
      * @return false otherwise
@@ -42,7 +42,7 @@ class RPN {
 
     /**
      * @brief check if a string is an singleton operator
-     * 
+     *
      * @param str the string to check
      * @return true if string is operator
      * @return false otherwise
@@ -53,7 +53,7 @@ class RPN {
 
     /**
      * @brief check if a string is an binary operator
-     * 
+     *
      * @param str the string to check
      * @return true if string is operator
      * @return false otherwise
@@ -111,8 +111,8 @@ class RPN {
      * @brief helper function of print,
      * indent the line according to depth.
      * NOTE: two space indentation
-     * 
-     * @param depth the level of the node, the root starts with 0 
+     *
+     * @param depth the level of the node, the root starts with 0
      */
     void indent(int depth) {
         for (int i = 0; i < depth; i++) {
@@ -123,8 +123,8 @@ class RPN {
     /**
      * @brief helper function of print,
      * start printing at depth
-     * 
-     * @param depth the level of the node, the root starts with 0 
+     *
+     * @param depth the level of the node, the root starts with 0
      */
     void print(int depth) {
         // indent and print opening parenthesis
@@ -162,9 +162,9 @@ class RPN {
     /**
      * @brief Construct a new RPN object
      * with depth to help syntax checking
-     * 
-     * @param strs 
-     * @param depth 
+     *
+     * @param strs
+     * @param depth
      */
     RPN(vector<string>& strs, int depth) {
         // base case
@@ -228,8 +228,14 @@ class RPN {
         } else if (this->value == "*") {
             result = a * b;
         } else if (this->value == "/") {
+            if (b == 0) {
+                throw "Arithmetic: denominator cannot be 0.";
+            }
             result = a / b;
         } else if (this->value == "**") {
+            if (a == 0 || (a == -1 && b < 1 && b > -1)) {
+                throw "Arithmetic: denominator cannot be 0.";
+            }
             result = pow(a, b);
         } else {
             throw "Invalid Operation";
@@ -240,7 +246,7 @@ class RPN {
 
     /**
      * @brief print the parse tree as required in project1.pdf part 2
-     * 
+     *
      */
     void print() {
         // start printing the tree at the root
@@ -267,8 +273,13 @@ double rpn(string* strs, int n, bool is_print_needed) {
 
     // try to build the parse tree
     RPN* model;
+    double res;
     try {
         model = new RPN(elements);
+        if (is_print_needed) {
+            model->print();
+        }
+        res = model->calculate();
     } catch (const string& msg) {
         cerr << "Error: " << msg << endl;
     } catch (const char* msg) {
@@ -277,9 +288,5 @@ double rpn(string* strs, int n, bool is_print_needed) {
         // swallow it
     }
 
-    if (is_print_needed) {
-        model->print();
-    }
-
-    return model->calculate();
+    return res;
 }

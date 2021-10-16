@@ -1,12 +1,12 @@
 
+#include "rpn.h"
+
 #include <unistd.h>
 
 #include <cstring>
 #include <iostream>
 #include <sstream>
 #include <vector>
-
-#include "rpn.h"
 using namespace std;
 
 vector<string> parse_csv(string line) {
@@ -38,8 +38,8 @@ vector<string> parse_csv(string line) {
  * @brief start the command environment of RPN calculator.
  * NOTE: this part is the same from my old project:
  * https://github.com/EYH0602/gunrock_web/blob/main/dcash_wallet/wallet.cpp
- * 
- * @param fp the file to read from 
+ *
+ * @param fp the file to read from
  * (stdin for interactive mode, other for batch mode).
  * @param is_print_needed need to print the tree or not
  */
@@ -63,6 +63,12 @@ void start_app(FILE* fp, bool is_print_needed) {
         // try to build the parse tree
         try {
             model = new RPN(rpn_line);
+            // print and evaluate the postfix
+            if (is_print_needed) {
+                model->print();
+            }
+            double res = model->calculate();
+            cout << "Result: " << res << endl;
         } catch (const string& msg) {
             cerr << "Error: " << msg << endl;
             continue;
@@ -73,11 +79,6 @@ void start_app(FILE* fp, bool is_print_needed) {
             // swallow it
         }
 
-        // print and evaluate the postfix
-        if (is_print_needed) {
-            model->print();
-        }
-        cout << "Result: " << model->calculate() << endl;
         delete model;
     }
 }
