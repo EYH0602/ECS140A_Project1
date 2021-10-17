@@ -9,11 +9,11 @@
 #include <vector>
 using namespace std;
 
-vector<string> parse_csv(string line) {
+vector<string> parse_input(string line) {
     vector<string> res;
     string temp;
     size_t index;
-    while ((index = line.find(",")) != std::string::npos) {
+    while ((index = line.find(" ")) != std::string::npos) {
         temp = line.substr(0, index);
         line = line.substr(index + 1);
         res.push_back(temp);
@@ -50,7 +50,6 @@ void start_app(FILE* fp, bool is_print_needed) {
     char* buff = NULL;
     string line;
     vector<string> rpn_line;
-    RPN* model;
 
     // read from file/STDIN line by line
     while (SHOW_PROMPT(prompt.c_str()), (len = getline(&buff, &cap, fp)) > 0) {
@@ -58,16 +57,16 @@ void start_app(FILE* fp, bool is_print_needed) {
             continue;
         }
         buff[len - 1] = '\0';
-        rpn_line = parse_csv(string(buff));
+        rpn_line = parse_input(string(buff));
 
-        // try to build the parse tree
+        // call the rpn function with string arr as required
+        string test[rpn_line.size()];
+        for (size_t i = 0; i < rpn_line.size(); i++) {
+            test[i] = rpn_line[i];
+        }
+        double res;
         try {
-            model = new RPN(rpn_line);
-            // print and evaluate the postfix
-            if (is_print_needed) {
-                model->print();
-            }
-            double res = model->calculate();
+            res = rpn(test, rpn_line.size(), is_print_needed);
             cout << "Result: " << res << endl;
         } catch (const string& msg) {
             cerr << "Error: " << msg << endl;
@@ -77,9 +76,8 @@ void start_app(FILE* fp, bool is_print_needed) {
             continue;
         } catch (...) {
             // swallow it
+            continue;
         }
-
-        delete model;
     }
 }
 

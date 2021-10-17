@@ -10,27 +10,29 @@ make
 
 ## Run
 
+**NOTE**:
+the operand/operators should be separated with 1 space ` `;
+
 ### Input Options
 
 The project offers two options for running
 1. interactive mode, where user types the postfix equation in CSV format in cli
  ```sh
  ❯ ./rpn
- > 3.14,<
+ > 3.14 <
  Result: 3
- > 5,2,*
+ > 5 2 *
  Result: 10
- > 2,12,6,-,/,5,3,+,*
+ > 2 12 6 - / 5 3 + *
  Result: 2.66667
  > 
  ```
 
-2. file mode, where use write down the test cases in a CSV file and use `-f` option to tell the program.
-For example called `test.csv`
- ```csv
- 2,12,6,-,/,5,3,+,*
- 3.14,<
-
+2. file mode, where use write down the test cases in a text file and use `-f` option to tell the program.
+For example called `test.txt`
+ ```
+ 2 12 6 - / 5 3 + *
+ 3.14 <
  ```
  
  ```sh
@@ -59,12 +61,12 @@ use `-l` to print out the parse tree, for example in interactive mode
 
 ```sh
 ❯ ./rpn -l
-> 3.14,<
+> 3.14 <
 (<
   3.14
 )
 Result: 3
-> 5,2,*
+> 5 2 *
 (*
   5
   2

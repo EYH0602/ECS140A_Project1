@@ -281,9 +281,9 @@ double rpn(string* strs, int n, bool is_print_needed) {
         }
         res = model->calculate();
     } catch (const string& msg) {
-        cerr << "Error: " << msg << endl;
+        throw msg;
     } catch (const char* msg) {
-        cerr << "Error: " << msg << endl;
+        throw msg;
     } catch (...) {
         // swallow it
     }

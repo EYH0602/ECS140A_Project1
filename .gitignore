@@ -2,4 +2,4 @@
 *.o
 main
 rpn
-test.csv
+test.*
